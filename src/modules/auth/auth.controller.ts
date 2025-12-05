@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import { authServices } from "./auth.service";
-
-
-
+import responseModifier from "../../helpers";
 const createUsers=async(req:Request,res:Response)=>{
 try{
     const result=await authServices.createUsers(req.body)
+    // const tempRes=responseModifier(result.rows[0])
     res.status(201).json({
         sucess:true,
-        message:"Data Created Successfully",
+        message:"User registered successfully",
         data:result.rows[0]
     })
 
