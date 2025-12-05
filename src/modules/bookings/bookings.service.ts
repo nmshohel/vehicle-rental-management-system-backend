@@ -7,7 +7,9 @@ const createBookings=async(payload:Record<string,unknown>)=>{
 
     const result=await pool.query(`INSERT INTO bookings(customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status) 
         VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status])
-    return result;
+        delete result.rows[0].created_at
+        delete result.rows[0].updated_at
+        return result;
 }
 const updateBookings=async(payload:Record<string,unknown>,bookingId:string)=>{
     const {status}=payload

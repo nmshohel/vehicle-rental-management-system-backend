@@ -7,7 +7,7 @@ try{
     const result=await vehiclesServices.createVehicles(req.body)
     res.status(201).json({
         sucess:true,
-        message:"Data Created Successfully",
+        message:"Vehicle created successfully",
         data:result.rows[0]
     })
 
@@ -24,9 +24,9 @@ const updateVehicles=async(req:Request,res:Response)=>{
     const vehicleId=req.params.vehicleId
     try{
         const result=await vehiclesServices.updateVehicles(req.body,vehicleId as string)
-        res.status(201).json({
+        res.status(200).json({
             sucess:true,
-            message:"Data Updated Successfully",
+            message:"Vehicle updated successfully",
             data:result.rows[0]
         })
 
@@ -42,9 +42,20 @@ const updateVehicles=async(req:Request,res:Response)=>{
 const getAllVehicles=async(req:Request,res:Response)=>{
     try{
         const result=await vehiclesServices.getAllVehicles()
-        res.status(201).json({
+        console.log(result.rows.length)
+
+        if(result.rows.length===0)
+        {
+            res.status(200).json({
             sucess:true,
-            message:"Data Fetch Successfully",
+            message:"No vehicles found",
+            data:[]
+        })
+
+        }
+        res.status(200).json({
+            sucess:true,
+            message:"Vehicles retrieved successfully",
             data:result.rows
         })
 
@@ -60,10 +71,10 @@ const getAllVehicles=async(req:Request,res:Response)=>{
 const getAllVehicleById=async(req:Request,res:Response)=>{
     const vehicleId=req.params.vehicleId
     try{
-        const result=await vehiclesServices.getVehicleVehicleById(vehicleId as string)
-        res.status(201).json({
+        const result=await vehiclesServices.getVehicleById(vehicleId as string)
+        res.status(200).json({
             sucess:true,
-            message:"Data Fetch Successfully",
+            message:"Vehicle retrieved successfully",
             data:result.rows
         })
 
@@ -80,9 +91,9 @@ const deleteVehicle=async(req:Request,res:Response)=>{
 
     try{
         const result=await vehiclesServices.deleteVehicle(req.params.vehicleId as string)
-        res.status(201).json({
+        res.status(200).json({
             sucess:true,
-            message:"Data Deleted Successfully",
+            message:"Vehicle deleted successfully",
             data:result.rows[0]
         })
 

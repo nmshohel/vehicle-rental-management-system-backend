@@ -4,11 +4,11 @@ import { usersServices } from "./users.service";
 
 const updateUsers=async(req:Request,res:Response)=>{
     try{
-        const result=await usersServices.updateUsers(req.body)
-        console.log(req.body)
-        res.status(201).json({
+        const result=await usersServices.updateUsers(req.body,req.params.userId as string)
+      
+        res.status(200).json({
             sucess:true,
-            message:"Data Updated Successfully",
+            message:"User updated successfully",
             data:result.rows[0]
         })
 
@@ -24,9 +24,9 @@ const updateUsers=async(req:Request,res:Response)=>{
 const getAllUsers=async(req:Request,res:Response)=>{
     try{
         const result=await usersServices.getAllUsers()
-        res.status(201).json({
+        res.status(200).json({
             sucess:true,
-            message:"Data Fetch Successfully",
+            message:"Users retrieved successfully",
             data:result.rows
         })
 
@@ -43,9 +43,9 @@ const deleteUser=async(req:Request,res:Response)=>{
 
     try{
         const result=await usersServices.deleteUser(req.params.userId as string)
-        res.status(201).json({
+        res.status(200).json({
             sucess:true,
-            message:"Data Deleted Successfully",
+            message:"User deleted successfully",
             data:result.rows[0]
         })
 

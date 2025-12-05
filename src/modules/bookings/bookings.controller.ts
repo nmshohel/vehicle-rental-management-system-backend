@@ -6,7 +6,7 @@ try{
     const result=await bookingsServices.createBookings(req.body)
     res.status(201).json({
         sucess:true,
-        message:"Data Created Successfully",
+        message:"Booking created successfully",
         data:result.rows[0]
     })
 
@@ -41,9 +41,9 @@ const updateBookings=async(req:Request,res:Response)=>{
 const getBookings=async(req:Request,res:Response)=>{
     try{
         const result=await bookingsServices.getBookings()
-        res.status(201).json({
+        res.status(200).json({
             sucess:true,
-            message:"Data Fetch Successfully",
+            message:"Bookings retrieved successfully",
             data:result.rows
         })
 
