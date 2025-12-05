@@ -6,8 +6,8 @@ const createVehicles=async(payload:Record<string,unknown>)=>{
         VALUES($1,$2,$3,$4,$5) RETURNING *`,[vehicle_name,type,registration_number,daily_rent_price,availability_status])
     return result;
 }
-const updateVehicles=async(payload:Record<string,unknown>)=>{
-    const {vehicle_name,vehicleId}=payload
+const updateVehicles=async(payload:Record<string,unknown>,vehicleId:string)=>{
+    const {vehicle_name}=payload
     const result=await pool.query(`UPDATE vehicles SET vehicle_name=$1 WHERE id=$2 RETURNING *`,[
         vehicle_name,vehicleId]);
     return result;

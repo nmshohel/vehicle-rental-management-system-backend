@@ -21,9 +21,9 @@ catch(err:any){
 }
 }
 const updateVehicles=async(req:Request,res:Response)=>{
+    const vehicleId=req.params.vehicleId
     try{
-        const result=await vehiclesServices.updateVehicles(req.body)
-        console.log(req.body)
+        const result=await vehiclesServices.updateVehicles(req.body,vehicleId as string)
         res.status(201).json({
             sucess:true,
             message:"Data Updated Successfully",
