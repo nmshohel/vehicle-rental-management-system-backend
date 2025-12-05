@@ -3,6 +3,8 @@ import { usersControllers } from "./users.controller"
 const router=express.Router()
 
 router.post("/",usersControllers.createUsers)
-router.put("/:id",usersControllers.updateUsers)
+router.get("/",usersControllers.getAllUsers)
+router.put("/:userId",usersControllers.updateUsers)
+router.delete("/:userId",usersControllers.deleteUser)
 
 export const usersRoutes=router
