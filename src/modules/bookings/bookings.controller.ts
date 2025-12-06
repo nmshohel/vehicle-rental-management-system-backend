@@ -39,13 +39,30 @@ const updateBookings=async(req:Request,res:Response)=>{
     }
 }
 const getBookings=async(req:Request,res:Response)=>{
+    const user=req.user
+    // console.log("controller----",user)
+   
     try{
-        const result=await bookingsServices.getBookings()
-        res.status(200).json({
+        const result=await bookingsServices.getBookings(user)
+        console.log(user)
+        if(user?.role==="admin")
+        {
+            res.status(200).json({
             sucess:true,
             message:"Bookings retrieved successfully",
             data:result.rows
         })
+
+        }
+        else{
+            res.status(200).json({
+            sucess:true,
+            message:"Your bookings retrieved successfully",
+            data:result.rows
+        })
+
+        }
+
 
     }
     catch(err:any){

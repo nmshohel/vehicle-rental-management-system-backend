@@ -1,9 +1,10 @@
 import express from "express"
 import { bookingsControllers } from "./bookings.controller"
+import auth from "../../middleware/auth"
 const router=express.Router()
 
 router.post("/",bookingsControllers.createBookings)
-router.get("/",bookingsControllers.getBookings)
+router.get("/",auth("customer","admin"),bookingsControllers.getBookings)
 router.put("/:bookingId",bookingsControllers.updateBookings)
 
 

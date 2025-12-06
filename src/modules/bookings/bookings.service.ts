@@ -2,13 +2,32 @@ import { pool } from "../../config/db"
 
 const createBookings=async(payload:Record<string,unknown>)=>{
     const {customer_id,vehicle_id,rent_start_date,rent_end_date}=payload
-    const total_price=100
+ 
+    const start = new Date(rent_start_date as string);
+    const end = new Date(rent_end_date as string);
+    const noOfDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+    const vehicleInfo=await pool.query(`SELECT daily_rent_price FROM vehicles WHERE id=$1`,[vehicle_id])
+    const dailyRentPrice:number=vehicleInfo.rows[0].daily_rent_price
+    let total_price:number=0
+    if(noOfDays===0)
+    {
+         total_price=dailyRentPrice as number
+    }
+    else
+    {
+        total_price=((noOfDays+1)*dailyRentPrice) as number
+    }
     const status="active"
-
+    // console.log(rent_start_date)
     const result=await pool.query(`INSERT INTO bookings(customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status) 
         VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status])
         delete result.rows[0].created_at
         delete result.rows[0].updated_at
+        result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
+        // console.log(result.rows[0].rent_start_date)
+        result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
+        result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
+      
         return result;
 }
 const updateBookings=async(payload:Record<string,unknown>,bookingId:string)=>{
@@ -17,9 +36,44 @@ const updateBookings=async(payload:Record<string,unknown>,bookingId:string)=>{
         status,bookingId]);
     return result;
 }
-const getBookings=async()=>{
-    const result=await pool.query(`SELECT * FROM bookings`)
-    return result;
+const getBookings=async(user:any)=>{
+    // console.log("service--------------",user)
+    const role=user.role
+    const email=user.email
+    // console.log(role)
+    if(role==="customer")
+    {
+        const customerInfo=await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);
+        const id=customerInfo.rows[0].id
+        const result=await pool.query(`SELECT * FROM bookings WHERE customer_id=$1`,[id])
+
+            result.rows.forEach((res)=>{
+            delete res.created_at;
+            delete res.updated_at;
+            delete res.password;
+            delete res.customer_id;
+            res.rent_start_date=res.rent_start_date.toISOString().split("T")[0];
+            res.rent_end_date=res.rent_end_date.toISOString().split("T")[0];
+            res.total_price=parseInt(res.total_price.toString())
+
+            })
+        return result;
+    }
+    else{
+        const result=await pool.query(`SELECT * FROM bookings`)
+
+            result.rows.forEach((res)=>{
+            delete res.created_at;
+            delete res.updated_at;
+            delete res.password;
+            res.rent_start_date=res.rent_start_date.toISOString().split("T")[0];
+            res.rent_end_date=res.rent_end_date.toISOString().split("T")[0];
+            res.total_price=parseInt(res.total_price.toString());
+  
+            })
+        return result;
+    }
+
 }
 
 export const bookingsServices={
