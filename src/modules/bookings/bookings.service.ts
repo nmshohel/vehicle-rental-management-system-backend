@@ -24,16 +24,23 @@ const createBookings=async(payload:Record<string,unknown>)=>{
         delete result.rows[0].created_at
         delete result.rows[0].updated_at
         result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
-        // console.log(result.rows[0].rent_start_date)
         result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
         result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
       
         return result;
 }
-const updateBookings=async(payload:Record<string,unknown>,bookingId:string)=>{
+const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:any)=>{
+    
     const {status}=payload
+    // console.log("service--------------------",status,user.role)
+
     const result=await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,[
         status,bookingId]);
+        delete result.rows[0].created_at
+        delete result.rows[0].updated_at
+        result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
+        result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
+        result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
     return result;
 }
 const getBookings=async(user:any)=>{

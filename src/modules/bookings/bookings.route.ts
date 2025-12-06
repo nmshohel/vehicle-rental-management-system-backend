@@ -5,7 +5,7 @@ const router=express.Router()
 
 router.post("/",bookingsControllers.createBookings)
 router.get("/",auth("customer","admin"),bookingsControllers.getBookings)
-router.put("/:bookingId",bookingsControllers.updateBookings)
+router.put("/:bookingId",auth("customer","admin"),bookingsControllers.updateBookings)
 
 
 

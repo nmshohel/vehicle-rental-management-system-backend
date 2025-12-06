@@ -21,13 +21,27 @@ catch(err:any){
 }
 const updateBookings=async(req:Request,res:Response)=>{
     const bookingId=req.params.bookingId
+
     try{
-        const result=await bookingsServices.updateBookings(req.body,bookingId as string)
-        res.status(201).json({
+        const result=await bookingsServices.updateBookings(req.body,bookingId as string,req.user)
+        if(req?.user?.role==="customer")
+        {
+            res.status(200).json({
             sucess:true,
-            message:"Data Updated Successfully",
+            message:"Booking cancelled successfully",
             data:result.rows[0]
         })
+
+        }
+        else{
+            res.status(200).json({
+            sucess:true,
+            message:"Booking marked as returned. Vehicle is now available",
+            data:result.rows[0]
+        })
+
+        }
+
 
     }
     catch(err:any){
