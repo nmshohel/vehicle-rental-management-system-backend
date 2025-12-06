@@ -7,7 +7,7 @@ const createBookings=async(payload:Record<string,unknown>)=>{
     const end = new Date(rent_end_date as string);
     const noOfDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
     const vehicleInfo=await pool.query(`SELECT daily_rent_price FROM vehicles WHERE id=$1`,[vehicle_id])
-    const dailyRentPrice:number=vehicleInfo.rows[0].daily_rent_price
+    const dailyRentPrice:number=vehicleInfo.rows[0]?.daily_rent_price
     let total_price:number=0
     if(noOfDays===0)
     {
