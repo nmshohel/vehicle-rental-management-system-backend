@@ -55,10 +55,12 @@ const updateBookings=async(req:Request,res:Response)=>{
 const getBookings=async(req:Request,res:Response)=>{
     const user=req.user
     // console.log("controller----",user)
+    
    
     try{
         const result=await bookingsServices.getBookings(user)
-        console.log(user)
+        
+        
         if(user?.role==="admin")
         {
             res.status(200).json({

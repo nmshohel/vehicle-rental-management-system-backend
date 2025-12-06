@@ -26,8 +26,14 @@ const createBookings=async(payload:Record<string,unknown>)=>{
         result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
         result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
         result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
-      
-        return result;
+    
+    if(result.rows.length>0)
+    {
+        const vehicleStatus="booked"
+        const vehicleStatusUpdate=await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2 RETURNING *`,[vehicleStatus,vehicle_id]);
+    }
+
+    return result;
 }
 const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:any)=>{
     
@@ -41,13 +47,22 @@ const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:
         result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
         result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
         result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
+    const vehicleId=result.rows[0].vehicle_id
+    console.log(vehicleId)
+    if(result.rows[0].status==="returned" || result.rows[0].status==="cancelled"){
+        const vehicleStatus="available"
+        const vehicleStatusUpdate=await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2 RETURNING *`,[vehicleStatus,vehicleId]);
+    }
+    
     return result;
 }
 const getBookings=async(user:any)=>{
     // console.log("service--------------",user)
     const role=user.role
     const email=user.email
-    // console.log(role)
+    
+
+
     if(role==="customer")
     {
         const customerInfo=await pool.query(`SELECT * FROM users WHERE email = $1`, [email]);
@@ -64,6 +79,7 @@ const getBookings=async(user:any)=>{
             res.total_price=parseInt(res.total_price.toString())
 
             })
+        
         return result;
     }
     else{
@@ -78,9 +94,32 @@ const getBookings=async(user:any)=>{
             res.total_price=parseInt(res.total_price.toString());
   
             })
-        return result;
-    }
+        ///System automatically marks bookings as "returned" when rent_end_date has passed
+        result.rows.forEach(async(res)=>{
+            const rentDate=new Date(res.rent_end_date)
+            const currentDate=new Date()
+            if(rentDate<currentDate)
+            {
 
+                const bookingId=res.id
+                const status="returned"
+                ///set booking status returned
+                const bookingInfo=await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,[
+                                    status,bookingId]);}
+
+                const vehicleId=res.vehicle_id
+                const vehicleStatus="available"
+                //set vehicle status available
+                const vehicleStatusUpdate=await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2 RETURNING *`,[vehicleStatus,vehicleId]);
+
+        })
+
+
+        return result;
+
+
+    }
+   
 }
 
 export const bookingsServices={
