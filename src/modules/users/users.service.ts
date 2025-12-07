@@ -3,6 +3,7 @@ import { pool } from "../../config/db"
 
 const updateUsers=async(payload:Record<string,unknown>,userId:string)=>{
     const {name,email,password,phone,role,id}=payload
+  
     const result=await pool.query(`UPDATE users SET name=$1 WHERE id=$2 RETURNING *`,[
         name,userId]);
     delete result.rows[0].created_at

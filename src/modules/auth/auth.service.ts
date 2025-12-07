@@ -3,13 +3,52 @@ import { pool } from "../../config/db";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import responseModifier from "../../helpers";
+    type UserPayload = {
+            name: string;
+            email: string;
+            password: string;
+            phone: string;
+            role: "admin" | "customer";
+            };
 
+const createUsers=async(payload:any)=>{
 
-const createUsers=async(payload:Record<string,unknown>)=>{
-    const {name,email,password,phone,role}=payload
+    const {name,email,password,phone,role}:UserPayload=payload
+    
+    if(name?.length===0 || name===undefined)
+    {
+        throw new Error("Name is required")
+    }
+    if(email?.length===0 || email===undefined)
+    {
+        throw new Error("Email is required")
+    }
+    if(password?.length===0 || password===undefined)
+    {
+        throw new Error("Password is required")
+    }
+    if(role?.length===0 || role===undefined)
+    {
+        throw new Error("Role is required")
+    }
+    if(role!=="admin" && role !=="customer")
+    {
+        throw new Error("Role is only Admin or Customer")
+    }
+    if(phone?.length===0 || phone===undefined)
+    {
+        throw new Error("Phone is required")
+    }
     const hashPassword=await bcrypt.hash(password as string,10)
+    const emailInLowercase=await (email as string).toLowerCase()
+    //check user exinsting
+    const userInfo=await pool.query(`SELECT * FROM users WHERE email=$1`,[emailInLowercase])
+    if(userInfo.rows?.length !==0)
+    {
+        throw new Error("User already exist.")
+    }
     const result=await pool.query(`INSERT INTO users(name,email,password,phone,role) 
-        VALUES($1,$2,$3,$4,$5) RETURNING id,name,email,phone,role`,[name,email,hashPassword,phone,role])
+        VALUES($1,$2,$3,$4,$5) RETURNING id,name,email,phone,role`,[name,emailInLowercase,hashPassword,phone,role])
     return result;
 }
 

@@ -7,7 +7,7 @@ try{
     res.status(201).json({
         sucess:true,
         message:"Booking created successfully",
-        data:result.rows[0]
+        data:result?.rows[0]
     })
 
 }

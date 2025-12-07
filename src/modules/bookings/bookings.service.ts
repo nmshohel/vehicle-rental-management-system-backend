@@ -1,32 +1,73 @@
 import { pool } from "../../config/db"
 
-const createBookings=async(payload:Record<string,unknown>)=>{
-    const {customer_id,vehicle_id,rent_start_date,rent_end_date}=payload
- 
-    const start = new Date(rent_start_date as string);
+const createBookings=async(payload:any)=>{
+            type BookingPayload = {
+            customer_id: number;
+            vehicle_id: number;
+            rent_start_date: string;
+            rent_end_date: string;
+            };
+    const {customer_id,vehicle_id,rent_start_date,rent_end_date}:BookingPayload=payload
+        if(customer_id===null || customer_id===undefined)
+        {
+            throw new Error("Customer id is required")
+        }
+        if(vehicle_id===null || vehicle_id===undefined)
+        {
+            throw new Error("Vehicle id is required")
+        }
+        if(rent_start_date?.length===0 || rent_start_date===undefined)
+        {
+            throw new Error("Rent Start date is required")
+        }
+        if(rent_end_date?.length===0 || rent_end_date===undefined)
+        {
+            throw new Error("Rent End date is required")
+        }
+        // if(availability_status!=="available" && availability_status !=="booked")
+        // {
+        //     throw new Error("Availability Status is only Available or Booked")
+        // }
+    const start = new Date(rent_start_date);
     const end = new Date(rent_end_date as string);
-    const noOfDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-    const vehicleInfo=await pool.query(`SELECT daily_rent_price FROM vehicles WHERE id=$1`,[vehicle_id])
-    const dailyRentPrice:number=vehicleInfo.rows[0]?.daily_rent_price
-    let total_price:number=0
-    if(noOfDays===0)
+    if(end<start)
     {
-         total_price=dailyRentPrice as number
+        throw new Error("Rent end date must be after start date")
     }
-    else
+
+    const noOfDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+    const vehicleInfo=await pool.query(`SELECT * FROM vehicles WHERE id=$1`,[vehicle_id])
+   
+    const customerInfo=await pool.query(`SELECT * FROM users WHERE id=$1`,[customer_id])
+    if(customerInfo?.rows?.length===0)
     {
-        total_price=((noOfDays+1)*dailyRentPrice) as number
+        throw new Error("Customer is not found")
+    }
+    if(vehicleInfo?.rows?.length===0)
+    {
+        throw new Error("Vehicle is not found")
+    }
+    const dailyRentPrice:number=vehicleInfo?.rows[0]?.daily_rent_price
+
+    const totalPrice=noOfDays*dailyRentPrice
+    if(totalPrice<1)
+    {
+        throw new Error("Enter Valid Date ")
+    }
+    if(vehicleInfo?.rows[0]?.availability_status==="booked")
+    {
+        throw new Error("Vehicle is already booked")
     }
     const status="active"
-    // console.log(rent_start_date)
     const result=await pool.query(`INSERT INTO bookings(customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status) 
-        VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[customer_id,vehicle_id,rent_start_date,rent_end_date,total_price,status])
+        VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[customer_id,vehicle_id,rent_start_date,rent_end_date,totalPrice,status])
         delete result.rows[0].created_at
         delete result.rows[0].updated_at
         result.rows[0].total_price=parseInt(result.rows[0].total_price.toString())
         result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
         result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
-    
+
+    // change vehicle status to booked
     if(result.rows.length>0)
     {
         const vehicleStatus="booked"
@@ -38,7 +79,7 @@ const createBookings=async(payload:Record<string,unknown>)=>{
 const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:any)=>{
     
     const {status}=payload
-    // console.log("service--------------------",status,user.role)
+  
 
     const result=await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,[
         status,bookingId]);
@@ -48,7 +89,7 @@ const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:
         result.rows[0].rent_start_date = result.rows[0].rent_start_date.toISOString().split("T")[0];
         result.rows[0].rent_end_date = result.rows[0].rent_end_date.toISOString().split("T")[0];
     const vehicleId=result.rows[0].vehicle_id
-    console.log(vehicleId)
+    
     if(result.rows[0].status==="returned" || result.rows[0].status==="cancelled"){
         const vehicleStatus="available"
         const vehicleStatusUpdate=await pool.query(`UPDATE vehicles SET availability_status=$1 WHERE id=$2 RETURNING *`,[vehicleStatus,vehicleId]);

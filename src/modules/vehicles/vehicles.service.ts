@@ -1,11 +1,56 @@
 import { pool } from "../../config/db"
 
-const createVehicles=async(payload:Record<string,unknown>)=>{
-    const {vehicle_name,type,registration_number,daily_rent_price,availability_status}=payload
+const createVehicles=async(payload:any)=>{
+        type VehiclePayload = {
+        vehicle_name: string;
+        type: "car" | "bike" | "van" | "SUV";
+        registration_number: string;
+        daily_rent_price: number;
+        availability_status: "available" | "booked";
+        };
+     const {vehicle_name,type,registration_number,daily_rent_price,availability_status}:VehiclePayload=payload
+    if(vehicle_name?.length===0 || vehicle_name===undefined)
+    {
+        throw new Error("Vehicle Name is required")
+    }
+    if(type?.length===0 || type===undefined)
+    {
+        throw new Error("Type is required")
+    }
+    if(type!=="car" && type !=="bike" && type !=="van" && type !=="SUV")
+    {
+        throw new Error("Type is only Car/Bike/Van,SUV")
+    }
+    if(registration_number?.length===0 || registration_number===undefined)
+    {
+        throw new Error("Resgistration No is required")
+    }
+    if(daily_rent_price===null || daily_rent_price===undefined)
+    {
+        throw new Error("Rent Price is required")
+    }
+    if(daily_rent_price <1 )
+    {
+        throw new Error("Rent Price is Must be Positive")
+    }
+    if(availability_status?.length===0 || availability_status===undefined)
+    {
+        throw new Error("Availability Status is required")
+    }
+    if(availability_status!=="available" && availability_status !=="booked")
+    {
+        throw new Error("Availability Status is only Available or Booked")
+    }
+    const vehileIfo=await pool.query(`SELECT * FROM vehicles WHERE registration_number=$1`,[registration_number])
+    if(vehileIfo.rows.length !==0){
+        throw new Error("Vehicle is already exist")
+    }
+
     const result=await pool.query(`INSERT INTO vehicles(vehicle_name,type,registration_number,daily_rent_price,availability_status) 
         VALUES($1,$2,$3,$4,$5) RETURNING *`,[vehicle_name,type,registration_number,daily_rent_price,availability_status])
     delete result.rows[0].created_at
     delete result.rows[0].updated_at
+    result.rows[0].daily_rent_price=parseInt(result.rows[0].daily_rent_price.toString())
     return result;
 }
 const updateVehicles=async(payload:Record<string,unknown>,vehicleId:string)=>{
