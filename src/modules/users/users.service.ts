@@ -1,14 +1,26 @@
 import { pool } from "../../config/db"
 
 
-const updateUsers=async(payload:Record<string,unknown>,userId:string)=>{
+const updateUsers=async(payload:Record<string,unknown>,userId:string,user:any)=>{
     const {name,email,password,phone,role,id}=payload
+
+    // console.log(user?.email)
+    const userInfo=await pool.query(`SELECT * FROM users WHERE email=$1`,[user.email])
+    console.log(user?.role==="customer")
   
+    if(user?.role==="customer")
+    {
+        
+        if(userInfo?.rows[0]?.id !=userId)
+        {
+            throw new Error("You can update only own profile")
+        }
+    }
     const result=await pool.query(`UPDATE users SET name=$1 WHERE id=$2 RETURNING *`,[
         name,userId]);
-    delete result.rows[0].created_at
-    delete result.rows[0].updated_at
-    delete result.rows[0].password
+    delete result?.rows[0]?.created_at
+    delete result?.rows[0]?.updated_at
+    delete result?.rows[0]?.password
     return result;
 }
 const getAllUsers=async()=>{

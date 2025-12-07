@@ -4,8 +4,8 @@ import auth from "../../middleware/auth"
 const router=express.Router()
 
 
-router.get("/",auth("admin","customer"),usersControllers.getAllUsers)
-router.put("/:userId",usersControllers.updateUsers)
+router.get("/",auth("admin"),usersControllers.getAllUsers)
+router.put("/:userId",auth("admin","customer"),usersControllers.updateUsers)
 router.delete("/:userId",auth("admin"),usersControllers.deleteUser)
 
 export const usersRoutes=router

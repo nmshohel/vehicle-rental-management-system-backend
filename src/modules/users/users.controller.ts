@@ -3,8 +3,9 @@ import { Result } from "pg";
 import { usersServices } from "./users.service";
 
 const updateUsers=async(req:Request,res:Response)=>{
+    
     try{
-        const result=await usersServices.updateUsers(req.body,req.params.userId as string)
+        const result=await usersServices.updateUsers(req.body,req.params.userId as string,req.user)
       
         res.status(200).json({
             sucess:true,

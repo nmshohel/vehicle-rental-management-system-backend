@@ -4,7 +4,7 @@ import auth from "../../middleware/auth"
 const router=express.Router()
 
 router.post("/signup",authControllers.createUsers)
-router.post("/signin",auth("user","admin"),authControllers.loginUser)
+router.post("/signin",authControllers.loginUser)
 
 
 export const authRoutes=router
