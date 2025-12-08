@@ -42,21 +42,21 @@ const updateVehicles=async(req:Request,res:Response)=>{
 const getAllVehicles=async(req:Request,res:Response)=>{
     try{
         const result=await vehiclesServices.getAllVehicles()
-        console.log(result.rows.length)
+     
 
-        if(result.rows.length===0)
+        if(result?.rows?.length===0)
         {
             res.status(200).json({
             sucess:true,
             message:"No vehicles found",
             data:[]
-        })
+            })
 
         }
         res.status(200).json({
             sucess:true,
             message:"Vehicles retrieved successfully",
-            data:result.rows
+            data:result?.rows
         })
 
     }
@@ -94,7 +94,7 @@ const deleteVehicle=async(req:Request,res:Response)=>{
         res.status(200).json({
             sucess:true,
             message:"Vehicle deleted successfully",
-            data:result.rows[0]
+            data:result?.rows[0]
         })
 
     }

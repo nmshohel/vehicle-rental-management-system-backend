@@ -64,12 +64,15 @@ const updateVehicles=async(payload:Record<string,unknown>,vehicleId:string)=>{
 const getAllVehicles=async()=>{
     const result=await pool.query(`SELECT * FROM vehicles`)
 
-
+   
+ 
     result.rows.forEach((res)=>{
-    delete res?.rows[0]?.created_at
-    delete res?.rows[0]?.updated_at
+    delete res?.created_at
+    delete res?.updated_at
     })
+    
     return result;
+
 }
 const deleteVehicle=async(id:string)=>{
 
