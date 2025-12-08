@@ -8,8 +8,8 @@ const auth=(...roles:string[])=>{
             const token = req.headers.authorization?.split(" ")[1];
             if(!token)
             {
-                res.status(500).json({
-                    message:"Your are not Allowed"
+                res.status(401).json({
+                    message:"Your are Unauthorized"
                 })
             }
             const decoded=jwt.verify(token as string,config.jwtSecret as string) as JwtPayload
@@ -18,8 +18,8 @@ const auth=(...roles:string[])=>{
 
             if(roles.length && !roles.includes(decoded.role as string))
                 {
-                    return res.status(500).json({
-                    error:"unauthorized"
+                    return res.status(403).json({
+                    error:"Forbidden"
                     })
                 }
 

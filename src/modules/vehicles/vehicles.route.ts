@@ -6,8 +6,8 @@ const router=express.Router()
 router.post("/",auth("admin"),vehiclesControllers.createVehicles)
 router.get("/",vehiclesControllers.getAllVehicles)
 router.get("/:vehicleId",vehiclesControllers.getAllVehicleById)
-router.put("/:vehicleId",vehiclesControllers.updateVehicles)
-router.delete("/:vehicleId",vehiclesControllers.deleteVehicle)
+router.put("/:vehicleId",auth("admin"),vehiclesControllers.updateVehicles)
+router.delete("/:vehicleId",auth("admin"),vehiclesControllers.deleteVehicle)
 
 
 export const vehiclesRoutes=router

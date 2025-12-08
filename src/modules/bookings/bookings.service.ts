@@ -76,10 +76,38 @@ const createBookings=async(payload:any)=>{
 
     return result;
 }
+
+
+
 const updateBookings=async(payload:Record<string,unknown>,bookingId:string,user:any)=>{
-    
+    const bookingInfo=await pool.query(`SELECT * FROM bookings WHERE id=$1`,[bookingId])
+    const userInfo=await pool.query(`SELECT * FROM users WHERE email=$1`,[user?.email])
     const {status}=payload
-  
+    const rentStartDate=bookingInfo?.rows[0]?.rent_start_date //10
+    const currentDate=new Date()//11
+    console.log("booking",)
+    console.log("user",)
+
+    if(user?.role==="customer")
+    {
+        if(bookingInfo?.rows[0]?.customer_id !==userInfo?.rows[0]?.id)
+        {
+            throw new Error("You can update only your booking")
+        }
+        if(status==="returned" || status==="active")
+        {
+            throw new Error("You can only cancel")
+        }
+        if(status==="cancel")
+        {
+            if(currentDate>rentStartDate)
+            {
+                throw new Error("You can't cancle because rent start date passed")
+            }
+        }
+
+        
+    }
 
     const result=await pool.query(`UPDATE bookings SET status=$1 WHERE id=$2 RETURNING *`,[
         status,bookingId]);
