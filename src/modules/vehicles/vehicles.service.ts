@@ -66,8 +66,8 @@ const getAllVehicles=async()=>{
 
 
     result.rows.forEach((res)=>{
-    delete result.rows[0].created_at
-    delete result.rows[0].updated_at
+    delete res?.rows[0]?.created_at
+    delete res?.rows[0]?.updated_at
     })
     return result;
 }
