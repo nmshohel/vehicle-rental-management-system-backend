@@ -12,12 +12,12 @@
 - **jsonwebtoken** (JWT authentication)
 
 - Setup & Usage Instructions.
-- 
--
+- Build command: npm run build
+- To run this project in Local: npm run dev
 
 #### Live Link
 ```
 GitHub Repo Link: https://github.com/nmshohel/vehicle-rental-management-system-backend
-Live Deployment Link: www.vercel.com
+Live Deployment https://vehicle-rental-management-system-ba.vercel.app
 ```
 
