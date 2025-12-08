@@ -12,8 +12,9 @@
 - **jsonwebtoken** (JWT authentication)
 
 ### Setup & Usage Instructions.
-``` Build command: npm run build
-    To run this project in Local: npm run dev
+```
+Build command: npm run build
+To run this project in Local: npm run dev
 ```
 
 #### Live Link
